@@ -1,6 +1,9 @@
 #include <iostream>
-#include <stack>
-using namespace std;
+#include <cmath>
+using	 namespace std;
+const int INFINITE = 1000000;
+int cards[1005];
+int arrivedState[1005][1005];
 
 int greedyPick(int cards[], int left, int right, int *record_do) {
 		if (cards[left] >= cards[right]) {
@@ -12,81 +15,36 @@ int greedyPick(int cards[], int left, int right, int *record_do) {
 		}
 }
 
-void restate(int record_do, int *countB, int cards[], int *begin, int *end) {
-	// restate
-		if (record_do == 0) {
-				(*begin)--;
-				*countB -= cards[*begin];
-		} else {
-				(*end)++;
-				*countB -= cards[*end];
+int pick(int begin, int end) {
+		if (begin == end) {
+				arrivedState[begin][end] = cards[begin];
+				return arrivedState[begin][end];
 		}
-}
-
-int pick(int cards[], int *max, int *begin, int *end, int countA, int countB, int finishedState[][1005]) {
-		if (*begin >= *end) {
-			if (*begin == *end) {
-				countA += cards[*begin];
-			}
-			*max = countA-countB > *max ? countA-countB : *max;
-			return *max;
+		if (begin +1== end) {
+				return abs(cards[begin]-cards[end]);
+		} else if (arrivedState[begin][end] != INFINITE) {
+			return arrivedState[begin][end];
 		} else {
-			if (finishedState[*begin][*end]) {
-				int nextToEnd = finishedState[*begin][*end];
-				//restate(record_do, &countB, cards, begin, end);
-				//countA -= cards[*begin];
-				//(*begin)--;
-				*max =  countA-countB+nextToEnd > *max ?  countA-countB+nextToEnd : *max;
-				return *max;
-			}
-			
-			int record_do;  // 0-left 1-right
-			countA += cards[*begin];  // pick the left card
-			(*begin)++; 
-			countB += greedyPick(cards, *begin, *end, &record_do);
-			if (record_do == 0) {
-					(*begin)++;
-			} else {
-					(*end)--;
-			}
-			finishedState[*begin][*end] = pick(cards, max, begin, end, countA, countB, finishedState);
-			cout << "finishedState at " << *begin << '\t' << *end << " : " <<  finishedState[*begin][*end] << endl;
-			// restate
-		//	if (record_do == 0) {
-		//			(*begin)--;
-		//			countB -= cards[*begin];
-		//	} else {
-		//			(*end)++;
-		//			countB -= cards[*end];
-		//	}
-			restate(record_do, &countB, cards, begin, end);
-			(*begin)--;
-			countA -= cards[*begin];
-			
-			// A pick the right first
-			countA += cards[*end];  // pick the left card
-			(*end)--; 
-			countB += greedyPick(cards, *begin, *end, &record_do);
-			if (record_do == 0) {
-					(*begin)++;
-			} else {
-					(*end)--;
-			}
-			//if (finishedState[*begin][*end]) {
-				//int nextToEnd = finishedState[*begin][*end];
-				//restate(record_do, &countB, cards, begin, end);
-				//countA -= cards[*end];
-				//(*end)++;
-				//*max =  countA-countB+nextToEnd > *max ?  countA-countB+nextToEnd : *max;
-				//return *max;
-			//}
-			finishedState[*begin][*end] = pick(cards, max, begin, end, countA, countB, finishedState);
-			cout << "finishedState at " << *begin << '\t' << *end << " : " <<  finishedState[*begin][*end] << endl;
-			
-			restate(record_do, &countB, cards, begin, end);
-			(*end)++;
-			countA -= cards[*end];
+				int aCard, bCard, record_do, left, right;
+				// A pick the left card
+				aCard = cards[begin];
+				bCard = greedyPick(cards, begin+1, end, &record_do);
+				if (record_do == 0) {
+					left = aCard-bCard+pick(begin+2, end);
+				} else {
+					left = aCard-bCard+pick(begin+1, end-1);
+				}
+				// A pick the right card
+				aCard = cards[end];
+				bCard = greedyPick(cards, begin, end-1, &record_do);
+				if (record_do == 0) {
+					right = aCard-bCard+pick(begin+1, end-1);
+				} else {
+					right = aCard-bCard+pick(begin, end-2);
+				}
+				arrivedState[begin][end] = left>right? left: right;
 		}
+		return arrivedState[begin][end];
 }
 
 int main () {
@@ -94,21 +52,18 @@ int main () {
 		int t = 1;
 		cin >> n;
 		while (n) {
-				int cards[1005];
-				int finishedState[1005][1005] = {0};
-				int max = 0;
-				int begin, end;  // the cards head and tail
-				
 				for (int i = 0; i < n; i++) {
 						cin >> cards[i];
 				}
 				
-				begin = 0;
-				end = n-1;
-				pick(cards, &max, &begin, &end, 0, 0, finishedState);
+				for (int i = 0; i < n; i++) {
+						for (int j = 0; j < n; j++) {
+								arrivedState[i][j] = INFINITE;
+						}
+				}
 				
-				cout << "In game " << t << "," << "the greedy strategy might lose by as many as "
-				<< max << " points." << endl;
+				cout << "In game " << t << ", " << "the greedy strategy might lose by as many as "
+				<< pick(0, n-1) << " points." << endl;
 				
 				cin >> n;
 				t++;
