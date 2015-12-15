@@ -65,7 +65,25 @@ bool walk(int start, int step) {
 				step--;
 				visited[next] = false;
 		}
-
+/*
+		 for (int i = 0; i < 8; i++) {
+				int x = (start-1)%8;
+				int y = (start-1)/8;
+				int next_x = x+op[i][0];
+				int next_y = y+op[i][1];
+				int next = next_y*8 + next_x + 1;
+				if (isValid(next_x, next_y) && !visited[next]) {
+						visited[next] = true;
+						route.push_back(next);
+						if (walk(next,++step)) {
+								return true;
+						}
+						// goback
+						route.pop_back();
+						step--;
+						visited[next] = false;
+				}
+		}*/
 		return false;
 }
 
@@ -78,6 +96,6 @@ int main() {
 			}
 			route.push_back(n);
 			visited[n] = true;
-			walk(n, 0);  //start step
+			walk(n, 0);  // x, y, step
 		}
 }
