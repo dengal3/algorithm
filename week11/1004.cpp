@@ -42,10 +42,10 @@ public:
 				s = l.s;
 				e = l.e;
 		}
-		double getStart() const{
+		float getStart() const{
 				return s;
 		}
-		double getEnd() const {
+		float getEnd() const {
 				return e;
 		}
 		double getK() const {
@@ -55,8 +55,19 @@ public:
 				return b;
 		}
 };
-
-bool cmp_func(Line a, Line b) {
+struct mycmp {  
+  bool operator() (Line l1, Line l2) const {  
+    if (compare(l1.getK(), l2.getK()) == 0) {  
+      if (compare(l1.getB(), l2.getB()) == 0) {  
+    return compare(l1.getStart(), l2.getStart()) < 0;  
+      }  
+      return compare(l1.getB(),l2.getB()) < 0;  
+    }  
+    return compare(l1.getK(), l2.getK()) < 0;  
+  }  
+} cmp_func; 
+/*
+bool cmp_func(const Line& a, const Line& b) {
 		if (compare(a.getK(), b.getK()) == 0) {
 				if (compare(a.getB(), b.getB() == 0)) {
 						return compare(a.getStart(), b.getStart()) < 0;
@@ -64,7 +75,7 @@ bool cmp_func(Line a, Line b) {
 				return compare(a.getB(), b.getB()) < 0;
 		}
 		return compare(a.getK(), b.getK()) < 0;
-}
+}*/
 
 int main() {
 	int t;
@@ -103,4 +114,5 @@ int main() {
 			cout << num << endl;
 			cin >> t;
 	}
+	return 0;
 }
